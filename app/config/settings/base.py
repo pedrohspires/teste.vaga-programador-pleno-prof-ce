@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -20,15 +21,32 @@ INSTALLED_APPS = [
     "app.core.apps.CoreConfig",
 ]
 
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    
+    'AUTH_COOKIE': 'access_token',      
+    'AUTH_COOKIE_HTTP_ONLY': True,     
+    'AUTH_COOKIE_PATH': '/',           
+    'AUTH_COOKIE_SAMESITE': 'Lax',     
+    'AUTH_COOKIE_SECURE': False,       
+}
+
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'app.core.authenticate.CustomAuthentication',
+    ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Minha API de Usuários',
-    'DESCRIPTION': 'CRUD de Professores e Alunos com Auditoria',
+    'TITLE': 'Minha API JWT',
+    'DESCRIPTION': 'API com autenticação HttpOnly Cookie',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_PATCH': True, 
 }
 
 MIDDLEWARE = [

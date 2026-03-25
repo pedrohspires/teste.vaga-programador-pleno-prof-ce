@@ -7,6 +7,7 @@ class Usuario(AbstractUser, AuditoriaModel):
         PROFESSOR = 'PROFESSOR', 'Professor'
         ALUNO = 'ALUNO', 'Aluno'
 
+    nome = models.CharField(max_length=255, null=True, blank=True)
     email = models.EmailField(unique=True)
     tipo = models.CharField(
         max_length=10, 

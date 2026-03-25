@@ -7,9 +7,13 @@ class UsuarioViewSet(viewsets.ModelViewSet):
     serializer_class = UsuarioSerializer
 
     def perform_create(self, serializer):
-        # Salva o usuário logado como criador
-        serializer.save(created_by=self.request.user, updated_by=self.request.user)
+        user = self.request.user
+        if not user.is_authenticated:
+            user = None
+        serializer.save(created_by=user, updated_by=user)
 
     def perform_update(self, serializer):
-        # Atualiza apenas o campo de quem editou por último
+        user = self.request.user
+        if not user.is_authenticated:
+            user = None
         serializer.save(updated_by=self.request.user)
