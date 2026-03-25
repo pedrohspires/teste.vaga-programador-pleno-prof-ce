@@ -1,3 +1,4 @@
 -r base.txt
 pytest
 django-debug-toolbar
+drf-spectacular
