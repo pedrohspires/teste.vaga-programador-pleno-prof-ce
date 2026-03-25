@@ -21,4 +21,4 @@ class AuditoriaModel(models.Model):
     )
 
     class Meta:
-        abstract = True # Isso impede que o Django crie uma tabela para esta classe
+        abstract = True
