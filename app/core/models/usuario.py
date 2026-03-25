@@ -13,8 +13,7 @@ class Usuario(AbstractUser, AuditoriaModel):
         choices=Tipo.choices, 
         default=Tipo.ALUNO
     )
-
-    # Usaremos o email para login em vez do username (opcional, mas comum em APIs)
+  
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['nome', 'tipo']
 
