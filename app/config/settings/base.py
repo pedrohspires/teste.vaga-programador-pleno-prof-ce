@@ -21,7 +21,13 @@ INSTALLED_APPS = [
     "app.core.apps.CoreConfig",
 ]
 
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
+
 SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('Bearer',),
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
@@ -35,8 +41,12 @@ SIMPLE_JWT = {
 }
 
 REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'app.core.exceptions.custom_exception_handler',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'app.core.authenticate.CustomAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
@@ -47,6 +57,16 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'COMPONENT_SPLIT_PATCH': True, 
+    'APPEND_COMPONENTS': {
+        "securitySchemes": {
+            "CookieAuth": {
+                "type": "apiKey",
+                "in": "cookie",
+                "name": "access_token"
+            }
+        }
+    },
+    "SECURITY": [{"CookieAuth": []}],
 }
 
 MIDDLEWARE = [

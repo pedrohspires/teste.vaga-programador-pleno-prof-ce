@@ -2,6 +2,9 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.conf import settings
 
 class CustomAuthentication(JWTAuthentication):
+    default_detail = ('Acesso negado. Por favor, realize o login para continuar.')
+    default_code = 'nao_autenticado'
+    
     def authenticate(self, request):
         header = self.get_header(request)
         
