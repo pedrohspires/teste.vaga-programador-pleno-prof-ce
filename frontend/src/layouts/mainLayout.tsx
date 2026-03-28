@@ -117,7 +117,7 @@ export default function MainLayout() {
                 )}
             >
                 <div className='w-full h-12 flex justify-between items-center border-b border-b-white/25'>
-                    <span className='text-blue-950 px-4 font-bold text-lg whitespace-nowrap'>DERMAONLINE</span>
+                    <span className='text-blue-950 px-4 font-bold text-lg whitespace-nowrap'>HOME STUDY</span>
                     {btnMenuElement}
                 </div>
 

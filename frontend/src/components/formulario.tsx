@@ -1,7 +1,6 @@
 import React, { type ReactNode } from 'react';
 import { useController, type Control } from 'react-hook-form';
 import type { ChildrenType } from '../services/global';
-import CustomDropzone from './dropzone';
 
 type Props = {
     onSubmit: React.SubmitEventHandler<HTMLFormElement>;
@@ -63,23 +62,6 @@ Formulario.InputSenha = ({ name, control, title, disabled, placeholder }: BasePr
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition"
-                disabled={disabled}
-            />
-        </div>
-    )
-}
-
-Formulario.Imagem = ({ name, control, title, disabled }: BasePropsInput) => {
-    const { field: { value, onChange } } = useController({ name, control });
-
-    return (
-        <div>
-            <div>
-                <Formulario.Label htmlFor={""}>{title}</Formulario.Label>
-            </div>
-            <CustomDropzone
-                value={value}
-                setValue={onChange}
                 disabled={disabled}
             />
         </div>

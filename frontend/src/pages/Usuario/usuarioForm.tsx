@@ -1,15 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useForm } from "react-hook-form";
-import { useNavigate, useLocation } from 'react-router';
+import { FaKey, FaSave, FaTimes } from 'react-icons/fa';
+import { useLocation, useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
-import { FaSave, FaTimes, FaKey } from 'react-icons/fa';
-import { SideModal } from '../../components/ui/sideModal';
 import { Button } from '../../components/ui/button';
-import { postUsuario, putUsuario, getUsuarioById, patchAlterarSenha } from '../../services/usuario';
-import { postPerfilAcessoListagem, type PerfilAcessoType } from '../../services/perfilAcesso';
-import { postPessoaListagem } from '../../services/pessoa';
 import { PageHeader } from '../../components/ui/pageHeader';
-import { SelectFilter } from '../../components/filtros/Select';
+import { SideModal } from '../../components/ui/sideModal';
+import { getUsuarioById, patchAlterarSenha, postUsuario, putUsuario } from '../../services/usuario';
 
 type UsuarioFormData = {
     nome: string;
@@ -29,45 +26,15 @@ export default function UsuarioFormPage() {
     const isEditing = Boolean(idEdicao);
 
     const [isLoading, setIsLoading] = useState(false);
-    const [perfisAcesso, setPerfisAcesso] = useState<PerfilAcessoType[]>([]);
-
-    // Estado para guardar a lista de Pessoas pro Select
-    const [pessoasOptions, setPessoasOptions] = useState<{ value: string; label: string }[]>([]);
 
     const [isPwdModalOpen, setPwdModalOpen] = useState(false);
     const [pwdError, setPwdError] = useState<string | null>(null);
 
-    const { handleSubmit, register, watch, setValue, formState: { errors }, reset } = useForm<UsuarioFormData>({
+    const { handleSubmit, register, formState: { errors }, reset } = useForm<UsuarioFormData>({
         defaultValues: { nome: '', login: '', senha: '', confirmacaoSenha: '', idPerfilAcesso: '', idPessoa: null, ativo: true }
     });
 
     const { register: registerPwd, handleSubmit: handlePwdSubmit, reset: resetPwd } = useForm<{ senha: string; confirmacaoSenha: string }>();
-
-    useEffect(() => {
-        const carregarPerfisEPessoas = async () => {
-            // Busca Perfis
-            const resPerfis = await postPerfilAcessoListagem({ pageSize: 100, currentPage: 0, pesquisa: "", ativo: true });
-            if (resPerfis.success) setPerfisAcesso(resPerfis.dados?.dados || []);
-
-            // Busca Pessoas para preencher o Select (sem o campo ativo, que não existe em Pessoa)
-            try {
-                // Forçamos o 'as any' caso a interface exija campos que não temos aqui
-                const resPessoas = await postPessoaListagem({ pageSize: 500, currentPage: 0, pesquisa: "" } as any);
-
-                // Forçamos a tipagem para any[] para o TypeScript liberar o .map()
-                const listaPessoas: any[] = resPessoas?.dados?.dados || resPessoas?.dados || [];
-
-                const opcoesFormatadas = listaPessoas.map((p) => ({
-                    value: p.id,
-                    label: p.razaoSocial || p.nomeFantasia || "Pessoa sem nome"
-                }));
-                setPessoasOptions(opcoesFormatadas);
-            } catch (error) {
-                console.error("Erro ao carregar pessoas:", error);
-            }
-        };
-        carregarPerfisEPessoas();
-    }, []);
 
     useEffect(() => {
         if (isEditing && idEdicao) {
@@ -98,7 +65,6 @@ export default function UsuarioFormPage() {
         setIsLoading(true);
         const toastId = toast.loading("Salvando...");
 
-        // Usando any para evitar erro de tipagem caso o idPessoa não esteja no UsuarioCadastroType
         const payload: any = {
             nome: dados.nome,
             login: dados.login,
@@ -182,30 +148,12 @@ export default function UsuarioFormPage() {
                     <div>
                         <label className="text-sm font-semibold text-slate-700 block mb-1">Perfil de Acesso *</label>
 
-                        <SelectFilter
-                            options={perfisAcesso.map(p => ({ value: p.id, label: p.descricao }))}
-                            value={watch("idPerfilAcesso") || ""}
-                            onChange={(val) => setValue("idPerfilAcesso", val, { shouldValidate: true })}
-                            placeholder="Selecione um perfil..."
-                            isDisabled={isLoading}
-                        />
-
                         <input
                             type="hidden"
                             {...register('idPerfilAcesso', { required: 'O perfil de acesso é obrigatório' })}
                         />
 
                         {errors.idPerfilAcesso && <span className="text-red-500 text-xs mt-1 block">{errors.idPerfilAcesso.message}</span>}
-                    </div>
-
-                    <div>
-                        <label className="text-sm font-semibold text-slate-700 block mb-1">Pessoa Vinculada (Opcional)</label>
-                        <SelectFilter
-                            options={pessoasOptions}
-                            value={watch("idPessoa") || ""}
-                            onChange={(val) => setValue("idPessoa", val === "" ? null : val)}
-                            placeholder="Selecione uma pessoa..."
-                        />
                     </div>
 
                     {!isEditing && (

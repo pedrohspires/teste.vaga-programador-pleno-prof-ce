@@ -26,7 +26,6 @@ export default function Login() {
       toast.update(process, { render: 'Login realizado com sucesso!', type: "success", isLoading: false, autoClose: 3000 });
       navigate('/')
     } else {
-      console.log(response.mensagem)
       toast.update(process, { render: response.mensagem || "Erro desconhecido", type: "error", isLoading: false, autoClose: 3000 });
     }
 
@@ -39,7 +38,7 @@ export default function Login() {
         <div className="bg-white rounded-lg shadow-lg p-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Bem-vindo</h1>
-            <p className="text-gray-600 mt-2">Dermatologista - Sistema</p>
+            <p className="text-gray-600 mt-2">HOME STUDY - Sistema</p>
           </div>
 
           <Formulario onSubmit={handleSubmit(useDebounce(submit, 500))}>
@@ -63,7 +62,7 @@ export default function Login() {
           </Formulario>
         </div>
         <div className="text-center mt-6 text-gray-600 text-xs">
-          <p>© {new Date().getFullYear()} DERMAONLINE. Todos os direitos reservados.</p>
+          <p>© {new Date().getFullYear()} HOME STUDY. Todos os direitos reservados.</p>
         </div>
       </div>
     </div>
