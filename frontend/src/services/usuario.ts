@@ -31,7 +31,7 @@ export type addOrUpdateUsuarioType = {
 }
 
 export type usuarioLogadoType = {
-    id: string
+    id: number
     nome: string
     email: string
     tipo: tiposUsuarioType

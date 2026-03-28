@@ -3,6 +3,7 @@ import AppContextComponent from '../context/appContext'
 import MainLayout from '../layouts/mainLayout'
 import Home from '../pages/Home'
 import Login from '../pages/Login'
+import Turma from '../pages/Turma'
 import Usuario from '../pages/Usuario'
 import UsuarioForm from '../pages/Usuario/form'
 
@@ -30,6 +31,10 @@ const rotas = createBrowserRouter([
                     {
                         path: '/usuario/form',
                         Component: UsuarioForm,
+                    },
+                    {
+                        path: '/turma',
+                        Component: Turma,
                     },
                 ],
             }

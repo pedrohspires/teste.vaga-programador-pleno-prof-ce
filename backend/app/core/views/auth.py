@@ -98,15 +98,15 @@ class LogoutView(APIView):
         
         return response
     
-class MeView(APIView):
+class UsuarioLogadoView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
         data = {
-            "id": str(user.id),
-            "nome": user.get_full_name() or user.username,
+            "id": user.id,
+            "nome": getattr(user, 'nome', user.username),
             "email": user.email,
-            "tipo": getattr(user, 'tipo', 'ALUNO')
+            "tipo": getattr(user, 'tipo', None),
         }
-        return Response(data)
+        return Response(data, status=status.HTTP_200_OK)

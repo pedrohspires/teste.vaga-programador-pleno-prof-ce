@@ -1,22 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaPen, FaSearch, FaTrash } from 'react-icons/fa';
-import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 
 import Tabela from '../../components/data-display/tabela';
 import { Button } from '../../components/ui/button';
 import { PageHeader } from '../../components/ui/pageHeader';
-import { deleteUsuario, postUsuarioListagem, type filtroUsuarioType, type usuarioType } from '../../services/usuario';
-import TipoUsuarioBadge from '../../templates/badges/TipoUsuarioBadge';
+import { deleteTurma, postTurmaListagem, type filtroTurmaType, type turmaType } from '../../services/turma';
 import DeleteModal from '../../templates/DeleteModal';
 import TableDropdown from '../../templates/TableDropdown';
+import ModalTurma from './Modal';
 
-export default function UsuariosPage() {
-  const navigate = useNavigate();
-
-  const [usuarios, setUsuarios] = useState<usuarioType[]>([]);
+export default function TurmasPage() {
+  const [turmas, setTurmas] = useState<turmaType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [currentId, setCurrentId] = useState<number | null>(null);
 
@@ -25,7 +23,7 @@ export default function UsuariosPage() {
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 10;
 
-  const { register, watch } = useForm<filtroUsuarioType>({
+  const { register, watch } = useForm<filtroTurmaType>({
     defaultValues: { search: "", }
   });
 
@@ -41,13 +39,13 @@ export default function UsuariosPage() {
     };
 
     try {
-      const response = await postUsuarioListagem(filtroPayload);
+      const response = await postTurmaListagem(filtroPayload);
 
       if (response && response.success) {
         const dadosBase = (response.dados as any) || {};
         const listaFinal = dadosBase.dados || response.dados || [];
 
-        setUsuarios(Array.isArray(listaFinal?.items) ? listaFinal.items : []);
+        setTurmas(Array.isArray(listaFinal?.items) ? listaFinal.items : []);
 
         setTotalPages(dadosBase.totalPages || dadosBase.totalPaginas || Math.ceil((listaFinal.length || 0) / itemsPerPage) || 1);
         setTotalItems(dadosBase.totalRegistros || dadosBase.totalElements || listaFinal.length || 0);
@@ -55,13 +53,13 @@ export default function UsuariosPage() {
         setCurrentPage(page);
       } else {
         toast.error(response.mensagem || "Erro ao carregar usuários.");
-        setUsuarios([]);
+        setTurmas([]);
         setTotalItems(0);
         setTotalPages(1);
       }
     } catch (error) {
       toast.error("Erro de comunicação com a API.");
-      setUsuarios([]);
+      setTurmas([]);
       setTotalItems(0);
       setTotalPages(1);
     } finally {
@@ -76,8 +74,11 @@ export default function UsuariosPage() {
     return () => clearTimeout(delayDebounceFn);
   }, [watchPesquisa]);
 
-  const handleOpenCreate = () => navigate('/usuario/form');
-  const handleOpenEdit = (id: number) => navigate('/usuario/form', { state: { id } });
+  const handleOpenCreate = () => setModalOpen(true);
+  const handleOpenEdit = (id: number) => {
+    setCurrentId(id);
+    setModalOpen(true);
+  };
 
   const handleOpenDelete = (id: number) => {
     setCurrentId(id);
@@ -89,16 +90,11 @@ export default function UsuariosPage() {
     setIsLoading(true);
 
     try {
-      const response = await deleteUsuario(currentId);
-
-      if ((response as any).status === 401) {
-        navigate('/login');
-        return;
-      }
+      const response = await deleteTurma(currentId);
 
       if (!response.success) throw new Error(response.mensagem || 'Erro ao excluir');
 
-      toast.success('Usuário excluído com sucesso');
+      toast.success('Turma excluída com sucesso');
       setDeleteModalOpen(false);
       getListagem(currentPage);
     } catch (err) {
@@ -112,11 +108,11 @@ export default function UsuariosPage() {
   return (
     <div className="flex-1 bg-slate-50 font-sans p-4 md:p-8 flex flex-col gap-6">
       <PageHeader
-        title='Usuários'
-        subtitle='Gestão de usuários'
+        title='Turmas'
+        subtitle='Gestão de turma'
         actions={
           <Button onClick={handleOpenCreate} variant={"success"}>
-            + Novo Usuário
+            + Nova Turma
           </Button>
         }
       />
@@ -130,7 +126,7 @@ export default function UsuariosPage() {
             </div>
             <input
               type="text"
-              placeholder="Nome ou login..."
+              placeholder="Digite para pesquisar"
               className="pl-10 border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full transition-shadow"
               {...register("search")}
             />
@@ -148,27 +144,21 @@ export default function UsuariosPage() {
           <Tabela>
             <Tabela.Header>
               <Tabela.Header.Row>
-                <Tabela.Header.Row.Cell>Nome</Tabela.Header.Row.Cell>
-                <Tabela.Header.Row.Cell>Email</Tabela.Header.Row.Cell>
-                <Tabela.Header.Row.Cell className="text-center w-32">Tipo</Tabela.Header.Row.Cell>
+                <Tabela.Header.Row.Cell>Descrição</Tabela.Header.Row.Cell>
                 <Tabela.Header.Row.Cell className="text-right w-24">Ações</Tabela.Header.Row.Cell>
               </Tabela.Header.Row>
             </Tabela.Header>
             <Tabela.Body>
-              {usuarios.length === 0 ? (
+              {turmas.length === 0 ? (
                 <Tabela.Body.Row>
                   <Tabela.Body.Row.Cell colSpan={5} className="p-12 text-center text-slate-500">
                     Nenhum usuário encontrado com os filtros atuais.
                   </Tabela.Body.Row.Cell>
                 </Tabela.Body.Row>
               ) : (
-                usuarios.map(u => (
+                turmas.map(u => (
                   <Tabela.Body.Row key={u.id} className="hover:bg-slate-50/50 transition-colors">
-                    <Tabela.Body.Row.Cell className='font-medium text-slate-800'>{u.nome}</Tabela.Body.Row.Cell>
-                    <Tabela.Body.Row.Cell className="text-slate-600">{u.email}</Tabela.Body.Row.Cell>
-                    <Tabela.Body.Row.Cell className="text-center">
-                      <TipoUsuarioBadge tipo={u.tipo} />
-                    </Tabela.Body.Row.Cell>
+                    <Tabela.Body.Row.Cell className='font-medium text-slate-800'>{u.descricao}</Tabela.Body.Row.Cell>
                     <Tabela.Body.Row.Cell className="text-right">
                       <TableDropdown>
                         <TableDropdown.Option handleClick={() => handleOpenEdit(u.id)}>
@@ -184,7 +174,7 @@ export default function UsuariosPage() {
               )}
             </Tabela.Body>
 
-            {usuarios.length > 0 && (
+            {turmas.length > 0 && (
               <Tabela.Footer
                 currentPage={currentPage}
                 totalPages={totalPages}
@@ -201,6 +191,13 @@ export default function UsuariosPage() {
         open={isDeleteModalOpen}
         setOpen={setDeleteModalOpen}
         handleConfirm={handleConfirmDelete}
+      />
+
+      <ModalTurma
+        open={modalOpen}
+        setOpen={setModalOpen}
+        id={currentId}
+        updateList={getListagem}
       />
     </div>
   );

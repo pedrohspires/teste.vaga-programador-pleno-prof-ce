@@ -1,4 +1,4 @@
-import React, { useEffect, forwardRef, useId } from 'react';
+import React, { forwardRef, useEffect, useId } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 interface BaseProps {
@@ -22,7 +22,7 @@ const SideModalRoot = ({ isOpen, onClose, children, className }: SideModalRootPr
 
   return (
     <div className={twMerge("relative z-50", isOpen ? "" : "pointer-events-none")}>
-      <div 
+      <div
         className={twMerge(
           "fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity duration-300",
           isOpen ? "opacity-100" : "opacity-0"
@@ -55,7 +55,7 @@ const Header = ({ children, onClose, className }: { children: React.ReactNode, o
 );
 
 const Body = ({ children, className }: BaseProps) => (
-  <div className={twMerge("flex-1 overflow-y-auto p-6 space-y-5", className)}>
+  <div className={twMerge("flex-1 overflow-y-auto p-6 space-y-5 h-full", className)}>
     {children}
   </div>
 );
