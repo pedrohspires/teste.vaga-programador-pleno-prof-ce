@@ -1,4 +1,4 @@
-import { deleteRequest, getRequest, postRequest, putRequest, patchRequest } from "../utils/requests";
+import { deleteRequest, getRequest, patchRequest, postRequest, putRequest } from "../utils/requests";
 import type { dadosPaginados } from "./api";
 
 const api = "/api/usuario";
@@ -46,12 +46,8 @@ export type UsuarioEdicaoType = {
 export type usuarioLogadoType = {
     id: string
     nome: string
-    login: string
-    ativo: boolean
-    idPerfilAcesso: string
-    descricaoPerfilAcesso: string
-    idPessoa?: string | null
-    razaoSocialPessoa?: string | null
+    email: string
+    tipo: "PROFESSOR" | "ALUNO"
 }
 
 export const postUsuarioListagem = async (payload: FiltroUsuarioType) => {

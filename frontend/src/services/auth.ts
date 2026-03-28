@@ -6,13 +6,13 @@ const api = '/api/auth';
 type LoginResponse = string;
 
 export type loginFormType = {
-  login: string;
-  senha: string;
+  email: string;
+  password: string;
 }
 
 export type loginType = {
-  login: string;
-  senha: string;
+  email: string;
+  password: string;
 }
 
 export const postAuthLogin = async (dados: loginType) => {
@@ -27,6 +27,6 @@ export const getAuthUsuarioLogado = async () => {
 
 
 export const authLogout = async () => {
-  const response = await postRequest(`${api}/logout`, {}); 
+  const response = await postRequest(`${api}/logout`, {});
   return response;
 };

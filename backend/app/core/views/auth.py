@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 class CookieTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
@@ -49,3 +50,16 @@ class LogoutView(APIView):
         response.delete_cookie('refresh_token', samesite='Lax')
         
         return response
+    
+class MeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        data = {
+            "id": str(user.id),
+            "nome": user.get_full_name() or user.username,
+            "email": user.email,
+            "tipo": getattr(user, 'tipo', 'ALUNO')
+        }
+        return Response(data)

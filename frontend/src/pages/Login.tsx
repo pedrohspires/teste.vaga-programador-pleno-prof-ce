@@ -18,9 +18,10 @@ export default function Login() {
     setIsLoading(true);
 
     const payload: loginType = {
-      login: dados.login,
-      senha: dados.senha
+      email: dados.email || "",
+      password: dados.password || ""
     }
+
     const response = await postAuthLogin(payload);
     if (response.success) {
       toast.update(process, { render: 'Login realizado com sucesso!', type: "success", isLoading: false, autoClose: 3000 });
@@ -44,14 +45,15 @@ export default function Login() {
           <Formulario onSubmit={handleSubmit(useDebounce(submit, 500))}>
             <Formulario.InputText
               control={control}
-              name='login'
-              title='Login'
+              name='email'
+              title='Email'
               disabled={isLoading}
+              type='email'
             />
 
             <Formulario.InputSenha
               control={control}
-              name='senha'
+              name='password'
               title='Senha'
               disabled={isLoading}
             />
