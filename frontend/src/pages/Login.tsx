@@ -14,12 +14,12 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false)
 
   const submit = async (dados: loginFormType) => {
-    const process = toast.loading("Salvando...");
+    const process = toast.loading("Realizando Login...");
     setIsLoading(true);
 
     const payload: loginType = {
       email: dados.email || "",
-      password: dados.password || ""
+      senha: dados.senha || ""
     }
 
     const response = await postAuthLogin(payload);
@@ -53,7 +53,7 @@ export default function Login() {
 
             <Formulario.InputSenha
               control={control}
-              name='password'
+              name='senha'
               title='Senha'
               disabled={isLoading}
             />

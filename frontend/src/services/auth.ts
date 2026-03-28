@@ -7,12 +7,12 @@ type LoginResponse = string;
 
 export type loginFormType = {
   email: string;
-  password: string;
+  senha: string;
 }
 
 export type loginType = {
   email: string;
-  password: string;
+  senha: string;
 }
 
 export const postAuthLogin = async (dados: loginType) => {

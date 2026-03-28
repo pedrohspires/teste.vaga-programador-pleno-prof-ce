@@ -17,32 +17,53 @@ const successHandler = (response: AxiosResponse<any>) => {
   };
 }
 
-const errorHandler = (err: unknown) => {
+const errorHandler = (err: unknown): retornoRequest<any> => {
   if (isAxiosError(err)) {
-    if (err.response?.status == 401) {
-      return {
-        status: 401,
-        dados: undefined,
-        mensagem: "Não autorizado",
-        success: false
+    const status = err.response?.status || 500;
+    const data = err.response?.data;
+    let mensagemFinal = "Erro de conexão";
+
+    if (data) {
+      if (data.detail) {
+        if (Array.isArray(data.detail))
+          mensagemFinal = data.detail[0]
+        else
+          mensagemFinal = data.detail;
+      }
+      else if (data.message) {
+        mensagemFinal = data.message;
+      }
+      else if (typeof data === 'object') {
+        const firstErrorKey = Object.keys(data)[0];
+        const firstErrorValue = data[firstErrorKey];
+
+        if (Array.isArray(firstErrorValue)) {
+          mensagemFinal = firstErrorValue[0];
+        } else if (typeof firstErrorValue === 'string') {
+          mensagemFinal = firstErrorValue;
+        }
       }
     }
 
-    return {
-      status: err.response?.status || 500,
-      dados: undefined,
-      mensagem: err.response?.data.error || "Erro de conexão",
-      success: false
+    if (status === 401 && mensagemFinal === "Erro de conexão") {
+      mensagemFinal = "Sessão expirada ou não autorizado";
     }
+
+    return {
+      status,
+      dados: undefined,
+      mensagem: mensagemFinal,
+      success: false
+    };
   }
 
   return {
     status: 500,
     dados: undefined,
-    mensagem: "Erro desconhecido: " + err,
+    mensagem: "Erro inesperado: " + (err instanceof Error ? err.message : err),
     success: false
-  }
-}
+  };
+};
 
 export const getRequest = async <T = unknown>(url: string): Promise<retornoRequest<T>> => {
   const Instance = getAxiosInstance();
