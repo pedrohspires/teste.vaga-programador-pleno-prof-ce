@@ -8,3 +8,5 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
 }
+
+CORS_ALLOW_ALL_ORIGINS = True

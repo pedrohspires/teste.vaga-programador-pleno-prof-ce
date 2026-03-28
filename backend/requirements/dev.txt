@@ -2,3 +2,4 @@
 pytest
 django-debug-toolbar
 drf-spectacular
+django-cors-headers
