@@ -1,0 +1,89 @@
+import React, { type ReactNode } from 'react';
+import { useController, type Control } from 'react-hook-form';
+import type { ChildrenType } from '../services/global';
+import CustomDropzone from './dropzone';
+
+type Props = {
+    onSubmit: React.SubmitEventHandler<HTMLFormElement>;
+    children: ReactNode;
+}
+
+type BasePropsInput = {
+    title: string;
+    name: string;
+    control: Control<any>;
+    disabled?: boolean;
+}
+
+function Formulario({ onSubmit, children }: Props) {
+    return (
+        <form onSubmit={onSubmit} className="space-y-4">
+            {children}
+        </form>
+    )
+}
+
+Formulario.Label = ({ children, htmlFor }: ChildrenType & { htmlFor: string }) => (
+    <label htmlFor={htmlFor} className="block text-sm font-medium text-gray-700 mb-2">{children}</label>
+)
+
+Formulario.InputText = ({ name, control, title, disabled, type, placeholder }: BasePropsInput & { type?: React.HTMLInputTypeAttribute, placeholder?: string }) => {
+    const { field: { value, onChange } } = useController({ name, control });
+
+    return (
+        <div>
+            <div>
+                <Formulario.Label htmlFor={name}>{title}</Formulario.Label>
+            </div>
+            <input
+                id={name}
+                value={value}
+                type={type}
+                onChange={(e) => onChange(e.target.value)}
+                placeholder={placeholder}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                disabled={disabled}
+            />
+        </div>
+    )
+}
+
+Formulario.InputSenha = ({ name, control, title, disabled, placeholder }: BasePropsInput & { placeholder?: string }) => {
+    const { field: { value, onChange } } = useController({ name, control });
+
+    return (
+        <div>
+            <div>
+                <Formulario.Label htmlFor={name}>{title}</Formulario.Label>
+            </div>
+            <input
+                id={name}
+                value={value}
+                type="password"
+                onChange={(e) => onChange(e.target.value)}
+                placeholder={placeholder}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                disabled={disabled}
+            />
+        </div>
+    )
+}
+
+Formulario.Imagem = ({ name, control, title, disabled }: BasePropsInput) => {
+    const { field: { value, onChange } } = useController({ name, control });
+
+    return (
+        <div>
+            <div>
+                <Formulario.Label htmlFor={""}>{title}</Formulario.Label>
+            </div>
+            <CustomDropzone
+                value={value}
+                setValue={onChange}
+                disabled={disabled}
+            />
+        </div>
+    )
+}
+
+export default Formulario
