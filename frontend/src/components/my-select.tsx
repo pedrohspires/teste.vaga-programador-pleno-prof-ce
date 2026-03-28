@@ -1,31 +1,27 @@
 import Select, { type StylesConfig } from 'react-select';
+import type { selectOptionType } from '../services/global';
 
-interface OptionType {
-  value: string;
-  label: string;
-}
-
-interface SelectFilterProps {
-  options: OptionType[];
-  value: string;
-  onChange: (value: string) => void;
+interface MySelectProps {
+  options: selectOptionType<any>[];
+  value: selectOptionType<any>;
+  onChange: (value: selectOptionType<any> | null) => void;
   placeholder?: string;
   noOptionsMessage?: string;
   isDisabled?: boolean;
 }
 
-export function SelectFilter({
+export function MySelect({
   options,
   value,
   onChange,
   placeholder = "Selecione...",
   noOptionsMessage = "Nenhuma opção encontrada",
   isDisabled = false
-}: SelectFilterProps) {
-  
-  const selectedOption = options.find((opt) => opt.value === value) || null;
+}: MySelectProps) {
 
-  const customStyles: StylesConfig<OptionType, false> = {
+  const selectedOption = options.find((opt) => opt.value === value?.value) || null;
+
+  const customStyles: StylesConfig<selectOptionType<any>, false> = {
     control: (base, state) => ({
       ...base,
       minHeight: '42px',
@@ -33,7 +29,7 @@ export function SelectFilter({
       borderColor: state.isFocused ? '#3b82f6' : '#cbd5e1',
       boxShadow: state.isFocused ? '0 0 0 2px rgba(59, 130, 246, 0.5)' : 'none',
       '&:hover': {
-        borderColor: state.isFocused ? '#3b82f6' : '#94a3b8' 
+        borderColor: state.isFocused ? '#3b82f6' : '#94a3b8'
       },
       transition: 'all 0.2s ease-in-out'
     }),
@@ -52,7 +48,7 @@ export function SelectFilter({
       placeholder={placeholder}
       noOptionsMessage={() => noOptionsMessage}
       onChange={(selected) => {
-        onChange(selected ? selected.value : "");
+        onChange(selected ? selected : null);
       }}
       styles={customStyles}
     />

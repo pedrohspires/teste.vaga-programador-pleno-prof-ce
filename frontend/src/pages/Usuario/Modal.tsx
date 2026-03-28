@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
-import { Modal } from '../../components/ui/modal';
 import { Button } from '../../components/ui/button'; // <-- Importando seu componente de botão
+import { Modal } from '../../components/ui/modal';
 import { deleteUsuario } from '../../services/usuario';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  id: string | null;
+  id: number | null;
   onSuccess: () => void;
 }
 
@@ -47,7 +47,7 @@ export default function UsuarioDeleteModal({ isOpen, onClose, id, onSuccess }: P
         <h3 className="text-lg font-bold mb-2">Confirmar Exclusão</h3>
         <p className="text-slate-500 mb-6">Tem certeza que deseja excluir este usuário?</p>
         <div className="flex justify-center gap-2">
-          
+
           <Button
             variant="outline"
             onClick={onClose}

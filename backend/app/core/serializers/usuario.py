@@ -11,9 +11,18 @@ class UsuarioSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at', 'created_by_detail'
         ]
         read_only_fields = ['created_at', 'updated_at', 'created_by', 'updated_by']
-        extra_kwargs = {'password': {'write_only': True}}
+        extra_kwargs = {
+            'password': {
+                'write_only': True, 
+                'required': False, 
+                'allow_blank': True 
+            }
+        }
 
     def create(self, validated_data):
+        if not validated_data.get('password'):
+             raise serializers.ValidationError({"password": "Este campo é obrigatório na criação."})
+        
         request = self.context.get('request')
         validated_data['username'] = validated_data.get('email')
         if request and request.user and request.user.is_authenticated:
@@ -35,3 +44,8 @@ class UsuarioSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         return instance
+    
+class UsuarioListagemSerializer(serializers.Serializer):
+    currentPage = serializers.IntegerField(default=1)
+    pageSize = serializers.IntegerField(default=10)
+    search = serializers.CharField(required=False, allow_blank=True)

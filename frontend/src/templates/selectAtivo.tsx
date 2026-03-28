@@ -1,4 +1,4 @@
-import { Select } from '../components/filtros/Select';
+import { Select } from '../components/my-select';
 
 interface SelectAtivoProps {
   value: string;

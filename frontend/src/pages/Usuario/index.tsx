@@ -1,102 +1,57 @@
 import { useEffect, useState } from 'react';
-import { FaPen, FaTrash, FaSearch } from 'react-icons/fa';
-import { useNavigate } from 'react-router';
 import { useForm } from 'react-hook-form';
+import { FaPen, FaSearch, FaTrash } from 'react-icons/fa';
+import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 
-import { SelectFilter } from '../../components/filtros/Select';
 import Tabela from '../../components/data-display/tabela';
 import { Button } from '../../components/ui/button';
 import { PageHeader } from '../../components/ui/pageHeader';
-import { postUsuarioListagem } from '../../services/usuario';
-import { postPerfilAcessoListagem } from '../../services/perfilAcesso';
-import AtivoBadge from '../../templates/badges/AtivoBadge';
+import { postUsuarioListagem, type filtroUsuarioType, type usuarioType } from '../../services/usuario';
+import TipoUsuarioBadge from '../../templates/badges/TipoUsuarioBadge';
 import TableDropdown from '../../templates/TableDropdown';
 import UsuarioDeleteModal from './Modal';
-
-interface PerfilAcesso {
-  id: string;
-  descricao: string;
-}
-
-interface Usuario {
-  id: string;
-  nome: string;
-  login: string;
-  ativo: boolean;
-  perfilAcesso?: PerfilAcesso;
-  descricaoPerfilAcesso?: string;
-}
-
-interface FiltrosForm {
-  pesquisa: string;
-  ativo: string;
-  idPerfilAcesso: string;
-}
 
 export default function UsuariosPage() {
   const navigate = useNavigate();
 
-  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [usuarios, setUsuarios] = useState<usuarioType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [perfis, setPerfis] = useState<PerfilAcesso[]>([]);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [currentId, setCurrentId] = useState<string | null>(null);
+  const [currentId, setCurrentId] = useState<number | null>(null);
 
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-  const itemsPerPage = 100; 
+  const itemsPerPage = 10;
 
-  const { register, watch, setValue } = useForm<FiltrosForm>({
-    defaultValues: { pesquisa: "", ativo: "", idPerfilAcesso: "" }
+  const { register, watch } = useForm<filtroUsuarioType>({
+    defaultValues: { search: "", }
   });
 
-  const watchPesquisa = watch("pesquisa");
-  const watchAtivo = watch("ativo");
-  const watchIdPerfilAcesso = watch("idPerfilAcesso");
-
-  useEffect(() => {
-    const fetchPerfis = async () => {
-      try {
-        const response = await postPerfilAcessoListagem({
-          pageSize: itemsPerPage,
-          currentPage: 0,
-          pesquisa: "",
-          ativo: true
-        });
-        const listaPerfis = (response.dados as any)?.dados || response.dados || [];
-        if (Array.isArray(listaPerfis)) setPerfis(listaPerfis);
-      } catch (error) {
-        console.error("Erro ao carregar perfis", error);
-      }
-    };
-    fetchPerfis();
-  }, []);
+  const watchPesquisa = watch("search");
 
   const getListagem = async (page: number = currentPage) => {
     setIsLoading(true);
-    
+
     const filtroPayload = {
       pageSize: itemsPerPage,
-      currentPage: page,
-      pesquisa: watchPesquisa,
-      idPerfilAcesso: watchIdPerfilAcesso === "" ? null : watchIdPerfilAcesso,
-      ativo: watchAtivo === "" ? null : watchAtivo === "true"
+      currentPage: page + 1,
+      search: watchPesquisa,
     };
 
     try {
       const response = await postUsuarioListagem(filtroPayload);
-      
+
       if (response && response.success) {
         const dadosBase = (response.dados as any) || {};
         const listaFinal = dadosBase.dados || response.dados || [];
-        
-        setUsuarios(Array.isArray(listaFinal) ? listaFinal : []);
-        
+
+        setUsuarios(Array.isArray(listaFinal?.items) ? listaFinal.items : []);
+
         setTotalPages(dadosBase.totalPages || dadosBase.totalPaginas || Math.ceil((listaFinal.length || 0) / itemsPerPage) || 1);
         setTotalItems(dadosBase.totalRegistros || dadosBase.totalElements || listaFinal.length || 0);
-        
+
         setCurrentPage(page);
       } else {
         toast.error(response.mensagem || "Erro ao carregar usuários.");
@@ -119,26 +74,15 @@ export default function UsuariosPage() {
       getListagem(0);
     }, 500);
     return () => clearTimeout(delayDebounceFn);
-  }, [watchPesquisa, watchAtivo, watchIdPerfilAcesso]);
+  }, [watchPesquisa]);
 
   const handleOpenCreate = () => navigate('/usuario/form');
-  const handleOpenEdit = (id: string) => navigate('/usuario/form', { state: { id } });
+  const handleOpenEdit = (id: number) => navigate('/usuario/form', { state: { id } });
 
-  const handleOpenDelete = (id: string) => {
+  const handleOpenDelete = (id: number) => {
     setCurrentId(id);
     setDeleteModalOpen(true);
   };
-
-  const perfilOptions = perfis.map(p => ({
-    value: p.id,
-    label: p.descricao
-  }));
-
-  const statusOptions = [
-    { value: "", label: "Todos" },
-    { value: "true", label: "Ativos" },
-    { value: "false", label: "Inativos" }
-  ];
 
   return (
     <div className="flex-1 bg-slate-50 font-sans p-4 md:p-8 flex flex-col gap-6">
@@ -163,29 +107,9 @@ export default function UsuariosPage() {
               type="text"
               placeholder="Nome ou login..."
               className="pl-10 border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full transition-shadow"
-              {...register("pesquisa")}
+              {...register("search")}
             />
           </div>
-        </div>
-
-        <div className="flex flex-col gap-1.5 flex-1 w-full z-20">
-          <label className="text-sm font-semibold text-slate-700">Perfil de Acesso</label>
-          <SelectFilter
-            options={perfilOptions}
-            value={watchIdPerfilAcesso}
-            onChange={(val) => setValue("idPerfilAcesso", val)}
-            placeholder="Filtrar perfil..."
-          />
-        </div>
-
-        <div className="flex flex-col gap-1.5 w-full md:w-56 z-10">
-          <label className="text-sm font-semibold text-slate-700">Status</label>
-          <SelectFilter
-            options={statusOptions}
-            value={watchAtivo}
-            onChange={(val) => setValue("ativo", val)}
-            placeholder="Todos"
-          />
         </div>
       </form>
 
@@ -200,9 +124,8 @@ export default function UsuariosPage() {
             <Tabela.Header>
               <Tabela.Header.Row>
                 <Tabela.Header.Row.Cell>Nome</Tabela.Header.Row.Cell>
-                <Tabela.Header.Row.Cell>Login</Tabela.Header.Row.Cell>
-                <Tabela.Header.Row.Cell>Perfil</Tabela.Header.Row.Cell>
-                <Tabela.Header.Row.Cell className="text-center w-32">Status</Tabela.Header.Row.Cell>
+                <Tabela.Header.Row.Cell>Email</Tabela.Header.Row.Cell>
+                <Tabela.Header.Row.Cell className="text-center w-32">Tipo</Tabela.Header.Row.Cell>
                 <Tabela.Header.Row.Cell className="text-right w-24">Ações</Tabela.Header.Row.Cell>
               </Tabela.Header.Row>
             </Tabela.Header>
@@ -217,10 +140,9 @@ export default function UsuariosPage() {
                 usuarios.map(u => (
                   <Tabela.Body.Row key={u.id} className="hover:bg-slate-50/50 transition-colors">
                     <Tabela.Body.Row.Cell className='font-medium text-slate-800'>{u.nome}</Tabela.Body.Row.Cell>
-                    <Tabela.Body.Row.Cell className="text-slate-600">{u.login}</Tabela.Body.Row.Cell>
-                    <Tabela.Body.Row.Cell className="text-slate-600">{u.perfilAcesso?.descricao || u.descricaoPerfilAcesso || '-'}</Tabela.Body.Row.Cell>
+                    <Tabela.Body.Row.Cell className="text-slate-600">{u.email}</Tabela.Body.Row.Cell>
                     <Tabela.Body.Row.Cell className="text-center">
-                      <AtivoBadge ativo={u.ativo} />
+                      <TipoUsuarioBadge tipo={u.tipo} />
                     </Tabela.Body.Row.Cell>
                     <Tabela.Body.Row.Cell className="text-right">
                       <TableDropdown>
@@ -238,7 +160,7 @@ export default function UsuariosPage() {
             </Tabela.Body>
 
             {usuarios.length > 0 && (
-              <Tabela.Footer 
+              <Tabela.Footer
                 currentPage={currentPage}
                 totalPages={totalPages}
                 totalItems={totalItems}
@@ -250,11 +172,11 @@ export default function UsuariosPage() {
         )}
       </div>
 
-      <UsuarioDeleteModal 
-        isOpen={isDeleteModalOpen} 
-        onClose={() => setDeleteModalOpen(false)} 
-        id={currentId} 
-        onSuccess={() => getListagem(currentPage)} 
+      <UsuarioDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        id={currentId}
+        onSuccess={() => getListagem(currentPage)}
       />
     </div>
   );

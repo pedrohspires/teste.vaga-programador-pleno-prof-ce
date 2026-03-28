@@ -4,8 +4,8 @@ from .views import UsuarioViewSet, TurmaViewSet
 from app.core.views.auth import CookieTokenObtainPairView, LogoutView, MeView
 
 router = DefaultRouter()
-router.register(r'usuarios', UsuarioViewSet, basename='usuario')
-router.register(r'turmas', TurmaViewSet, basename='turma')
+router.register(r'usuario', UsuarioViewSet, basename='usuario')
+router.register(r'turma', TurmaViewSet, basename='turma')
 
 urlpatterns = [
     path('auth/login', CookieTokenObtainPairView.as_view(), name='token_obtain_pair'),
