@@ -3,16 +3,17 @@ import { useForm } from 'react-hook-form';
 import { FaPen, FaSearch, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
+import { format } from 'date-fns';
 import Tabela from '../../components/data-display/tabela';
 import { Button } from '../../components/ui/button';
 import { PageHeader } from '../../components/ui/pageHeader';
-import { deleteTurma, postTurmaListagem, type filtroTurmaType, type turmaType } from '../../services/turma';
+import { deleteAtividade, postAtividadeListagem, type atividadeType, type filtroAtividadeType } from '../../services/atividade';
 import DeleteModal from '../../templates/DeleteModal';
 import TableDropdown from '../../templates/TableDropdown';
-import ModalTurma from './Modal';
+import ModalAtividade from './Modal';
 
-export default function TurmasPage() {
-  const [turmas, setTurmas] = useState<turmaType[]>([]);
+export default function AtividadesPage() {
+  const [atividades, setAtividades] = useState<atividadeType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -23,7 +24,7 @@ export default function TurmasPage() {
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 10;
 
-  const { register, watch } = useForm<filtroTurmaType>({
+  const { register, watch } = useForm<filtroAtividadeType>({
     defaultValues: { search: "", }
   });
 
@@ -36,30 +37,31 @@ export default function TurmasPage() {
       pageSize: itemsPerPage,
       currentPage: page + 1,
       search: watchPesquisa,
+      id_turma: null
     };
 
     try {
-      const response = await postTurmaListagem(filtroPayload);
+      const response = await postAtividadeListagem(filtroPayload);
 
       if (response && response.success) {
         const dadosBase = (response.dados as any) || {};
         const listaFinal = dadosBase.dados || response.dados || [];
 
-        setTurmas(Array.isArray(listaFinal?.items) ? listaFinal.items : []);
+        setAtividades(Array.isArray(listaFinal?.items) ? listaFinal.items : []);
 
         setTotalPages(response.dados?.totalPages || 0);
         setTotalItems(response.dados?.total || 0);
 
         setCurrentPage(page);
       } else {
-        toast.error(response.mensagem || "Erro ao carregar turma.");
-        setTurmas([]);
+        toast.error(response.mensagem || "Erro ao carregar atividades.");
+        setAtividades([]);
         setTotalItems(0);
         setTotalPages(1);
       }
     } catch (error) {
       toast.error("Erro de comunicação com a API.");
-      setTurmas([]);
+      setAtividades([]);
       setTotalItems(0);
       setTotalPages(1);
     } finally {
@@ -90,16 +92,16 @@ export default function TurmasPage() {
     setIsLoading(true);
 
     try {
-      const response = await deleteTurma(currentId);
+      const response = await deleteAtividade(currentId);
 
       if (!response.success) throw new Error(response.mensagem || 'Erro ao excluir');
 
-      toast.success('Turma excluída com sucesso');
+      toast.success('Atividade excluída com sucesso');
       setDeleteModalOpen(false);
       getListagem(currentPage);
     } catch (err) {
-      console.error('Erro ao excluir usuário', err);
-      toast.error('Erro ao excluir o usuário.');
+      console.error('Erro ao excluir atividade', err);
+      toast.error('Erro ao excluir o atividade.');
     } finally {
       setIsLoading(false);
     }
@@ -108,11 +110,11 @@ export default function TurmasPage() {
   return (
     <div className="flex-1 bg-slate-50 font-sans p-4 md:p-8 flex flex-col gap-6">
       <PageHeader
-        title='Turmas'
-        subtitle='Gestão de turma'
+        title='Atividades'
+        subtitle='Gestão de atividade'
         actions={
           <Button onClick={handleOpenCreate} variant={"success"}>
-            + Nova Turma
+            + Nova Atividade
           </Button>
         }
       />
@@ -138,27 +140,33 @@ export default function TurmasPage() {
         {isLoading ? (
           <div className="p-12 text-center flex flex-col items-center justify-center text-slate-500 bg-white shadow-sm border border-slate-200 rounded-xl">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-4"></div>
-            <span>Carregando turma...</span>
+            <span>Carregando atividades...</span>
           </div>
         ) : (
           <Tabela>
             <Tabela.Header>
               <Tabela.Header.Row>
+                <Tabela.Header.Row.Cell>Título</Tabela.Header.Row.Cell>
                 <Tabela.Header.Row.Cell>Descrição</Tabela.Header.Row.Cell>
+                <Tabela.Header.Row.Cell>Data Entrega</Tabela.Header.Row.Cell>
+                <Tabela.Header.Row.Cell>Turma</Tabela.Header.Row.Cell>
                 <Tabela.Header.Row.Cell className="text-right w-24">Ações</Tabela.Header.Row.Cell>
               </Tabela.Header.Row>
             </Tabela.Header>
             <Tabela.Body>
-              {turmas.length === 0 ? (
+              {atividades.length === 0 ? (
                 <Tabela.Body.Row>
                   <Tabela.Body.Row.Cell colSpan={5} className="p-12 text-center text-slate-500">
-                    Nenhum usuário encontrado com os filtros atuais.
+                    Nenhum atividade encontrado com os filtros atuais.
                   </Tabela.Body.Row.Cell>
                 </Tabela.Body.Row>
               ) : (
-                turmas.map(u => (
+                atividades.map(u => (
                   <Tabela.Body.Row key={u.id} className="hover:bg-slate-50/50 transition-colors">
+                    <Tabela.Body.Row.Cell className='font-medium text-slate-800'>{u.titulo}</Tabela.Body.Row.Cell>
                     <Tabela.Body.Row.Cell className='font-medium text-slate-800'>{u.descricao}</Tabela.Body.Row.Cell>
+                    <Tabela.Body.Row.Cell className='font-medium text-slate-800'>{format(u.data_entrega, "dd/MM/yyyy")}</Tabela.Body.Row.Cell>
+                    <Tabela.Body.Row.Cell className='font-medium text-slate-800'>{u.turma_descricao}</Tabela.Body.Row.Cell>
                     <Tabela.Body.Row.Cell className="text-right">
                       <TableDropdown>
                         <TableDropdown.Option handleClick={() => handleOpenEdit(u.id)}>
@@ -174,7 +182,7 @@ export default function TurmasPage() {
               )}
             </Tabela.Body>
 
-            {turmas.length > 0 && (
+            {atividades.length > 0 && (
               <Tabela.Footer
                 currentPage={currentPage}
                 totalPages={totalPages}
@@ -193,7 +201,7 @@ export default function TurmasPage() {
         handleConfirm={handleConfirmDelete}
       />
 
-      <ModalTurma
+      <ModalAtividade
         open={modalOpen}
         setOpen={setModalOpen}
         id={currentId}

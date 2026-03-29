@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router'
 import AppContextComponent from '../context/appContext'
 import MainLayout from '../layouts/mainLayout'
+import Atividade from '../pages/Atividade'
 import Home from '../pages/Home'
 import Login from '../pages/Login'
 import Turma from '../pages/Turma'
@@ -35,6 +36,10 @@ const rotas = createBrowserRouter([
                     {
                         path: '/turma',
                         Component: Turma,
+                    },
+                    {
+                        path: '/atividade',
+                        Component: Atividade,
                     },
                 ],
             }
