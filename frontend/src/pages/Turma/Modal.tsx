@@ -68,13 +68,13 @@ export default function ModalTurma({ open, setOpen, id, updateList }: Props) {
 
     const submit = async (vals: turmaFormType) => {
         setIsLoading(true);
-        const toastId = toast.loading('Atualizando password...');
+        const toastId = toast.loading('Salvando...');
 
-        const payloda: addOrUpdateTurmaType = {
+        const payload: addOrUpdateTurmaType = {
             descricao: vals.descricao,
             id_professor: dadosUsuarioLogado?.id || 0
         }
-        const response = !!id ? await putTurma(id, payloda) : await postTurma(payloda);
+        const response = !!id ? await putTurma(id, payload) : await postTurma(payload);
 
         if (response.success) {
             toast.update(toastId, { render: "Item salvo com sucesso", type: 'success', isLoading: false, autoClose: 2000 });

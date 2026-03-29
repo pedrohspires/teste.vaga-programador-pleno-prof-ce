@@ -3,3 +3,4 @@ from .usuario import UsuarioSerializer
 from .aluno_turma import AlunoTurmaSerializer
 from .atividade import AtividadeSerializer
 from .resposta import RespostaSerializer
+from .correcao import CorrecaoSerializer

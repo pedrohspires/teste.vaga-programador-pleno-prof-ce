@@ -4,3 +4,4 @@ from .aluno_turma import AlunoTurmaViewSet
 from .atividade import AtividadeViewSet
 from .me import MeAtividadesView
 from .resposta import RespostaViewSet
+from .correcao import CorrecaoViewSet

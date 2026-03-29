@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { useContext, useEffect, useState } from "react";
 import { FaEye, FaPen } from "react-icons/fa";
+import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import Tabela from "../components/data-display/tabela";
 import { PageHeader } from "../components/ui/pageHeader";
@@ -12,6 +13,7 @@ import ModalResposta from "./Resposta/Modal";
 
 
 export default function Home() {
+  const navigate = useNavigate();
   const { dadosUsuarioLogado } = useContext(AppContext);
   const [atividades, setAtividades] = useState<atividadeType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -89,7 +91,7 @@ export default function Home() {
 
 
                     {dadosUsuarioLogado?.tipo === "PROFESSOR" && (
-                      <TableDropdown.Option handleClick={() => setIdAtividadeSelecionada(u.id)}>
+                      <TableDropdown.Option handleClick={() => navigate("/respostas", { state: { idAtividade: u.id } })}>
                         <FaEye className="mr-2" /> Ver respostas
                       </TableDropdown.Option>
                     )}
@@ -102,7 +104,7 @@ export default function Home() {
       </Tabela>
 
       <ModalResposta
-        idAluno={null}
+        id={null}
         idAtividade={idAtividadeSelecionada}
         open={modalRespostaOpen}
         setOpen={setModalRespostaOpen}

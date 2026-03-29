@@ -5,14 +5,14 @@ const api = "/api/respostas";
 
 export type respostaType = {
     aluno: number;
+    nome_aluno: string;
     atividade: number;
+    titulo_atividade: number;
     conteudo_resposta: string;
-    feedback: string;
 } & baseType;
 
 export type respostaFormType = {
     conteudo_resposta: string;
-    feedback: string;
 }
 
 export type addOrUpdateRespostaType = {
@@ -31,7 +31,12 @@ export const patchResposta = async (id: number, payload: addOrUpdateRespostaType
     return response;
 }
 
-export const getRespostaByAtividadeId = async (idAtividade: number, idAluno: number) => {
-    const response = await getRequest<respostaType>(`${api}/${idAtividade}/${idAluno}/`);
+export const getRespostaByAtividadeAluno = async (idAtividade: number, idAluno: number) => {
+    const response = await getRequest<respostaType>(`${api}/buscar/${idAtividade}/${idAluno}/`);
+    return response;
+}
+
+export const getRespostaByAtividade = async (idAtividade: number) => {
+    const response = await getRequest<respostaType>(`${api}/atividade/${idAtividade}/`);
     return response;
 }

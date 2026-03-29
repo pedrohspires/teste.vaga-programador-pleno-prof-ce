@@ -13,11 +13,22 @@ class RespostaViewSet(mixins.CreateModelMixin,
     serializer_class = RespostaSerializer
 
     def create(self, request, *args, **kwargs):
-        if request.user.tipo != Usuario.Tipo.ALUNO:
+        user = request.user
+
+        if user.tipo != Usuario.Tipo.ALUNO:
             return Response(
                 {"detail": "Apenas alunos podem cadastrar respostas."},
                 status=status.HTTP_403_FORBIDDEN
             )
+
+        atividade_id = request.data.get('atividade')
+
+        if Resposta.objects.filter(aluno=user, atividade_id=atividade_id).exists():
+            return Response(
+                {"detail": "Você já enviou uma resposta para essa atividade."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         return super().create(request, *args, **kwargs)
 
     def partial_update(self, request, *args, **kwargs):
@@ -25,17 +36,7 @@ class RespostaViewSet(mixins.CreateModelMixin,
         user = request.user
         data = request.data
 
-        if user.tipo == Usuario.Tipo.PROFESSOR:
-            feedback_text = data.get('feedback') or data.get('conteudo_resposta')
-            if not feedback_text:
-                return Response({"detail": "Informe o conteúdo do feedback."}, status=status.HTTP_400_BAD_REQUEST)
-            
-            instance.feedback = feedback_text
-            instance.updated_by = user
-            instance.save()
-            return Response(self.get_serializer(instance).data)
-
-        elif user.tipo == Usuario.Tipo.ALUNO:
+        if user.tipo == Usuario.Tipo.ALUNO:
             if instance.aluno != user:
                 return Response({"detail": "Você só pode editar sua própria resposta."}, status=status.HTTP_403_FORBIDDEN)
 
@@ -58,8 +59,23 @@ class RespostaViewSet(mixins.CreateModelMixin,
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user, updated_by=self.request.user)
+        
+    @action(detail=False, methods=['get'], url_path='atividade/(?P<idAtividade>[^/.]+)')
+    def listar_por_atividade(self, request, idAtividade=None):
+        user = request.user
 
-    @action(detail=False, methods=['get'], url_path='(?P<idAtividade>[^/.]+)/(?P<idAluno>[^/.]+)')
+        if user.tipo != Usuario.Tipo.PROFESSOR:
+            return Response(
+                {"detail": "Acesso negado. Apenas professores podem listar as respostas."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        respostas = Resposta.objects.filter(atividade_id=idAtividade).select_related('aluno')
+
+        serializer = self.get_serializer(respostas, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path='buscar/(?P<idAtividade>[^/.]+)/(?P<idAluno>[^/.]+)')
     def buscar_resposta_especifica(self, request, idAtividade=None, idAluno=None):
         try:
             resposta = Resposta.objects.get(

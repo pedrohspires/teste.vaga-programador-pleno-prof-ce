@@ -1,57 +1,54 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import Formulario from '../../components/formulario';
 import { Button } from '../../components/ui/button';
 import SideModal from '../../components/ui/sideModal';
-import { AppContext } from '../../context/appContext';
-import { getAtividadeById, postAtividade, putAtividade, type addOrUpdateAtividadeType, type atividadeFormType } from '../../services/atividade';
-import SelectTurma from '../../templates/selects/TurmaSelect';
+import { getCorrecaoByResposta, postCorrecao, putCorrecao, type addOrUpdateCorrecaoType, type correcaoFormType } from '../../services/correcao';
 
 type Props = {
     open: boolean;
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    id: number | null;
+    idResposta: number | null;
     updateList: () => void;
 }
 
-export default function ModalAtividade({ open, setOpen, id, updateList }: Props) {
-    const { dadosUsuarioLogado } = useContext(AppContext);
+export default function ModalCorrecao({ open, setOpen, idResposta, updateList }: Props) {
     const [isLoading, setIsLoading] = useState(false);
-    const { control, handleSubmit, reset } = useForm<atividadeFormType>();
+    const { control, handleSubmit, reset } = useForm<correcaoFormType>();
+    const [idCorrecao, setIdCorrecao] = useState<number>(0);
 
     useEffect(() => {
-        if (open && id) {
-            setValueById();
-        }
-    }, [open, id]);
+        if (open && idResposta)
+            setValueByAtividadeId();
+        else if (!open) reset({});
+    }, [open, idResposta]);
 
-    const setValueById = async () => {
-        if (!id) return;
+    const setValueByAtividadeId = async () => {
+        if (!idResposta) return;
 
         setIsLoading(true);
-        const response = await getAtividadeById(id);
+        const response = await getCorrecaoByResposta(idResposta);
         if (response.success && response.dados) {
+            setIdCorrecao(response.dados.id);
             reset({
-                descricao: response.dados?.descricao,
+                nota: response.dados?.nota,
+                feedback: response.dados?.feedback,
             });
-        } else {
-            toast.error("Erro ao carregar atividade.");
         }
         setIsLoading(false);
     }
 
-    const submit = async (vals: atividadeFormType) => {
+    const submit = async (vals: correcaoFormType) => {
         setIsLoading(true);
         const toastId = toast.loading('Salvando...');
 
-        const payload: addOrUpdateAtividadeType = {
-            titulo: vals.titulo,
-            descricao: vals.descricao,
-            data_entrega: vals.data_entrega,
-            turma: vals.turma.value,
+        const payload: addOrUpdateCorrecaoType = {
+            resposta: idResposta || 0,
+            nota: vals.nota,
+            feedback: vals.feedback,
         }
-        const response = !!id ? await putAtividade(id, payload) : await postAtividade(payload);
+        const response = !!idCorrecao ? await putCorrecao(idCorrecao, payload) : await postCorrecao(payload);
 
         if (response.success) {
             toast.update(toastId, { render: "Item salvo com sucesso", type: 'success', isLoading: false, autoClose: 2000 });
@@ -67,37 +64,24 @@ export default function ModalAtividade({ open, setOpen, id, updateList }: Props)
     return (
         <SideModal isOpen={open} onClose={() => setOpen(false)}>
             <SideModal.Header onClose={() => setOpen(false)}>
-                {id ? "Editar Atividade" : "Nova Atividade"}
+                Correção
             </SideModal.Header>
 
             <SideModal.Body>
                 <Formulario onSubmit={handleSubmit(submit)}>
                     <Formulario.InputText
                         control={control}
-                        name='titulo'
-                        title='Título'
+                        name='nota'
+                        title='Nota'
                         disabled={isLoading}
+                        type='number'
                     />
 
                     <Formulario.TextArea
                         control={control}
-                        name='descricao'
-                        title='Descrição'
+                        name='feedback'
+                        title='Feedback'
                         disabled={isLoading}
-                    />
-
-                    <Formulario.DatePicker
-                        control={control}
-                        name='data_entrega'
-                        title='Data de entrega'
-                        disabled={isLoading}
-                    />
-
-                    <SelectTurma
-                        control={control}
-                        name='turma'
-                        title='Turma'
-                        isDisabled={isLoading}
                     />
                 </Formulario>
             </SideModal.Body>

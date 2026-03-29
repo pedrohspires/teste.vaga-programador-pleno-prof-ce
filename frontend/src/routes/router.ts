@@ -4,6 +4,7 @@ import MainLayout from '../layouts/mainLayout'
 import Atividade from '../pages/Atividade'
 import Home from '../pages/Home'
 import Login from '../pages/Login'
+import Resposta from '../pages/Resposta'
 import Turma from '../pages/Turma'
 import Usuario from '../pages/Usuario'
 import UsuarioForm from '../pages/Usuario/form'
@@ -40,6 +41,10 @@ const rotas = createBrowserRouter([
                     {
                         path: '/atividade',
                         Component: Atividade,
+                    },
+                    {
+                        path: '/respostas',
+                        Component: Resposta,
                     },
                 ],
             }

@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import UsuarioViewSet, TurmaViewSet, AlunoTurmaViewSet, AtividadeViewSet, MeAtividadesView, RespostaViewSet
+from .views import UsuarioViewSet, TurmaViewSet, AlunoTurmaViewSet, AtividadeViewSet, MeAtividadesView, RespostaViewSet, CorrecaoViewSet
 from app.core.views.auth import CookieTokenObtainPairView, LogoutView, UsuarioLogadoView
 
 router = DefaultRouter()
@@ -9,6 +9,7 @@ router.register(r'turma', TurmaViewSet, basename='turma')
 router.register(r'aluno-turma', AlunoTurmaViewSet, basename='aluno-turma')
 router.register(r'atividade', AtividadeViewSet, basename='atividade')
 router.register(r'respostas', RespostaViewSet, basename='respostas')
+router.register(r'correcao', CorrecaoViewSet, basename='correcao')
 
 urlpatterns = [
     path('auth/login', CookieTokenObtainPairView.as_view(), name='token_obtain_pair'),

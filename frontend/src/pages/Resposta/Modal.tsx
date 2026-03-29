@@ -5,17 +5,17 @@ import Formulario from '../../components/formulario';
 import { Button } from '../../components/ui/button';
 import SideModal from '../../components/ui/sideModal';
 import { AppContext } from '../../context/appContext';
-import { getRespostaByAtividadeId, patchResposta, postResposta, type addOrUpdateRespostaType, type respostaFormType } from '../../services/resposta';
+import { getRespostaByAtividadeAluno, patchResposta, postResposta, type addOrUpdateRespostaType, type respostaFormType } from '../../services/resposta';
 
 type Props = {
     open: boolean;
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    id: number | null;
     idAtividade: number | null;
-    idAluno: number | null;
     updateList: () => void;
 }
 
-export default function ModalResposta({ open, setOpen, idAtividade, updateList, idAluno }: Props) {
+export default function ModalResposta({ open, setOpen, idAtividade, updateList }: Props) {
     const { dadosUsuarioLogado } = useContext(AppContext);
     const [isLoading, setIsLoading] = useState(false);
     const { control, handleSubmit, reset } = useForm<respostaFormType>();
@@ -31,7 +31,7 @@ export default function ModalResposta({ open, setOpen, idAtividade, updateList, 
         if (!idAtividade) return;
 
         setIsLoading(true);
-        const response = await getRespostaByAtividadeId(idAtividade, idAluno || (dadosUsuarioLogado?.tipo === "ALUNO" ? dadosUsuarioLogado.id : 0));
+        const response = await getRespostaByAtividadeAluno(idAtividade, dadosUsuarioLogado?.tipo === "ALUNO" ? dadosUsuarioLogado.id : 0);
         if (response.success && response.dados) {
             setIdResposta(response.dados.id);
             reset({
@@ -43,14 +43,14 @@ export default function ModalResposta({ open, setOpen, idAtividade, updateList, 
 
     const submit = async (vals: respostaFormType) => {
         setIsLoading(true);
-        const toastId = toast.loading('Atualizando password...');
+        const toastId = toast.loading('Salvando...');
 
-        const payloda: addOrUpdateRespostaType = {
+        const payload: addOrUpdateRespostaType = {
             aluno: dadosUsuarioLogado?.id || 0,
             atividade: idAtividade || 0,
-            conteudo_resposta: dadosUsuarioLogado?.tipo === "PROFESSOR" ? vals.feedback : vals.conteudo_resposta,
+            conteudo_resposta: vals.conteudo_resposta,
         }
-        const response = dadosUsuarioLogado?.tipo === "PROFESSOR" || idResposta ? await patchResposta(idResposta, payloda) : await postResposta(payloda);
+        const response = !!idResposta ? await patchResposta(idResposta, payload) : await postResposta(payload);
 
         if (response.success) {
             toast.update(toastId, { render: "Item salvo com sucesso", type: 'success', isLoading: false, autoClose: 2000 });
@@ -77,15 +77,6 @@ export default function ModalResposta({ open, setOpen, idAtividade, updateList, 
                         title='Resposta'
                         disabled={isLoading}
                     />
-
-                    {dadosUsuarioLogado?.tipo === "PROFESSOR" && (
-                        <Formulario.TextArea
-                            control={control}
-                            name='feedback'
-                            title='Feedback'
-                            disabled={isLoading}
-                        />
-                    )}
                 </Formulario>
             </SideModal.Body>
 

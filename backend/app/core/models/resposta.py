@@ -16,7 +16,6 @@ class Resposta(AuditoriaModel):
         related_name='respostas'
     )
     conteudo_resposta = models.TextField()
-    feedback = models.TextField(null=True, blank=True) 
 
     class Meta:
         unique_together = ('aluno', 'atividade')
