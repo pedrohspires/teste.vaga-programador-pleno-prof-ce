@@ -8,6 +8,7 @@ export type tiposUsuarioType = "PROFESSOR" | "ALUNO";
 
 export type filtroUsuarioType = {
     search: string
+    tipo: tiposUsuarioType | null
 } & baseFiltrosPaginadosType;
 
 export type usuarioType = {

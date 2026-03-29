@@ -38,6 +38,7 @@ export default function UsuariosPage() {
       pageSize: itemsPerPage,
       currentPage: page + 1,
       search: watchPesquisa,
+      tipo: null
     };
 
     try {
@@ -49,8 +50,8 @@ export default function UsuariosPage() {
 
         setUsuarios(Array.isArray(listaFinal?.items) ? listaFinal.items : []);
 
-        setTotalPages(dadosBase.totalPages || dadosBase.totalPaginas || Math.ceil((listaFinal.length || 0) / itemsPerPage) || 1);
-        setTotalItems(dadosBase.totalRegistros || dadosBase.totalElements || listaFinal.length || 0);
+        setTotalPages(response.dados?.totalPages || 0);
+        setTotalItems(response.dados?.total || 0);
 
         setCurrentPage(page);
       } else {

@@ -22,11 +22,17 @@ class UsuarioViewSet(mixins.CreateModelMixin,
         current_page = request.data.get('currentPage', 1)
         page_size = request.data.get('pageSize', 10)
         search_text = request.data.get('search', '')
+        tipo = request.data.get('tipo', None)
 
         queryset = self.get_queryset().order_by('-created_at')
         if search_text:
             queryset = queryset.filter(
                 Q(nome__icontains=search_text) | Q(username__icontains=search_text)
+            )
+
+        if tipo:
+            queryset = queryset.filter(
+                Q(tipo__icontains=tipo)
             )
 
         paginator = Paginator(queryset, page_size)

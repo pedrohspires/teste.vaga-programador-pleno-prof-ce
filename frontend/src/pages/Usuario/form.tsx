@@ -32,26 +32,26 @@ export default function UsuarioForm() {
     });
 
     useEffect(() => {
-        if (isEditing && idEdicao) {
-            const carregarUsuario = async () => {
-                setIsLoading(true);
-                const response = await getUsuarioById(idEdicao);
-                if (response.success && response.dados) {
-                    reset({
-                        nome: response.dados?.nome,
-                        email: response.dados?.email,
-                        tipo: optionsTipoUsuario.find(x => x.value === response.dados?.tipo),
-                        password: '',
-                    });
-                } else {
-                    toast.error("Erro ao carregar usuário.");
-                    navigate('/usuario');
-                }
-                setIsLoading(false);
-            };
+        if (isEditing && idEdicao)
             carregarUsuario();
-        }
     }, [idEdicao, isEditing, reset, navigate]);
+
+    const carregarUsuario = async () => {
+        setIsLoading(true);
+        const response = await getUsuarioById(idEdicao);
+        if (response.success && response.dados) {
+            reset({
+                nome: response.dados?.nome,
+                email: response.dados?.email,
+                tipo: optionsTipoUsuario.find(x => x.value === response.dados?.tipo),
+                password: '',
+            });
+        } else {
+            toast.error("Erro ao carregar usuário.");
+            navigate('/usuario');
+        }
+        setIsLoading(false);
+    };
 
     const submit = async (dados: usuarioFormType) => {
         setIsLoading(true);
