@@ -7,3 +7,4 @@ from .resposta import RespostaViewSet
 from .correcao import CorrecaoViewSet
 from .me import MeCorrecaoDetailView
 from .me import MeCorrecoesView
+from .menu import MenuView

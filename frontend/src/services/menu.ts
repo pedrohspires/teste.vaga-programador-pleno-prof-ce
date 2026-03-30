@@ -16,7 +16,7 @@ export type menuItemType = {
 }
 
 
-export const getMenu = async (controllerAtual: string) => {
-  const response = await getRequest<menuType>(`${api}/${controllerAtual}`);
+export const getMenu = async () => {
+  const response = await getRequest<menuType>(`${api}/`);
   return response;
 };

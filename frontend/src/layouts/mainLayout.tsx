@@ -36,11 +36,8 @@ export default function MainLayout() {
     }, [location.pathname]);
 
     async function carregarMenu() {
-        const pathSegments = window.location.pathname.split("/");
-        const path = pathSegments.length > 1 && pathSegments[1] !== "" ? pathSegments[1] : "";
-
         try {
-            const response = await getMenu(path);
+            const response = await getMenu();
 
             if (response.status === 200) {
                 const itensDoMenu = (response.dados as unknown as menuItemType[]) || [];
