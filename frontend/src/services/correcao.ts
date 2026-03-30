@@ -10,6 +10,14 @@ export type correcaoType = {
     feedback: string;
 } & baseType;
 
+export type correcaoRespostaType = {
+    titulo_atividade: string;
+    nome_aluno: string;
+    nota: number;
+    feedback_professor: string;
+    conteudo_resposta: string;
+} & baseType;
+
 export type correcaoFormType = {
     resposta: number;
     nota: number;

@@ -8,6 +8,7 @@ import Resposta from '../pages/Resposta'
 import Turma from '../pages/Turma'
 import Usuario from '../pages/Usuario'
 import UsuarioForm from '../pages/Usuario/form'
+import RespostaAluno from '../pages/Resposta/Aluno'
 
 const rotas = createBrowserRouter([
     {
@@ -45,6 +46,10 @@ const rotas = createBrowserRouter([
                     {
                         path: '/respostas',
                         Component: Resposta,
+                    },
+                    {
+                        path: '/respostas/aluno',
+                        Component: RespostaAluno,
                     },
                 ],
             }

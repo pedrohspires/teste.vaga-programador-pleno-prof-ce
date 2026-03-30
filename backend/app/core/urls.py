@@ -17,7 +17,7 @@ urlpatterns = [
     path('auth/usuario-logado', UsuarioLogadoView.as_view(), name='usuario-logado'),
 
     path('me/atividades', MeAtividadesView.as_view(), name='me-atividades'),
-    path('me/correcoes/', MeCorrecoesView.as_view()),
+    path('me/respostas/', MeCorrecoesView.as_view()),
     path('me/correcoes/<int:idCorrecao>/', MeCorrecaoDetailView.as_view()),
 
     path('menu/', MenuView.as_view()),

@@ -8,7 +8,8 @@ from django.shortcuts import get_object_or_404
 from app.core.models.resposta import Resposta
 from app.core.models.atividade import Atividade
 from app.core.serializers.atividade import AtividadeSerializer
-from app.core.serializers.correcao import CorrecaoSerializer
+# from app.core.serializers.correcao import CorrecaoSerializer
+from app.core.serializers.resposta import RespostaSerializer
 from app.core.models.usuario import Usuario
 
 class MeAtividadesView(APIView):
@@ -54,27 +55,25 @@ class MeCorrecoesView(APIView):
 
         if user.tipo != Usuario.Tipo.ALUNO:
             return Response(
-                {"detail": "Apenas alunos podem acessar correções."},
+                {"detail": "Apenas alunos podem acessar suas atividades e correções."},
                 status=status.HTTP_403_FORBIDDEN
             )
 
         respostas = Resposta.objects.filter(
-            aluno=user,
-            correcao__isnull=False
+            aluno=user
         ).select_related(
-            'correcao',
+            'correcao', 
             'atividade'
-        )
+        ).order_by('-created_at')
 
-        correcoes = [r.correcao for r in respostas]
-
-        serializer = CorrecaoSerializer(correcoes, many=True)
+        serializer = RespostaSerializer(respostas, many=True)
         return Response(serializer.data)
 
 class MeCorrecaoDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, idCorrecao):
+        from app.core.serializers.correcao import CorrecaoSerializer
         user = request.user
 
         if user.tipo != Usuario.Tipo.ALUNO:

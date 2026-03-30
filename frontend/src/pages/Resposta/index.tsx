@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FaPen, FaSearch } from 'react-icons/fa';
+import { FaPen } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
 import { format } from 'date-fns';
@@ -55,23 +55,6 @@ export default function RespostasPage() {
         title='Respostas'
         subtitle='Visualize e dê nota para a resposta dos alunos de suas turmas'
       />
-
-      <form onSubmit={(e) => e.preventDefault()} className="flex flex-col md:flex-row gap-4 items-end bg-white p-5 shadow-sm border border-slate-200 rounded-xl w-full transition-all">
-        <div className="flex flex-col gap-1.5 flex-1 w-full relative">
-          <label className="text-sm font-semibold text-slate-700">Pesquisar</label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FaSearch className="text-slate-400" />
-            </div>
-            {/* <input
-              type="text"
-              placeholder="Digite para pesquisar"
-              className="pl-10 border border-slate-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full transition-shadow"
-              {...register("search")}
-            /> */}
-          </div>
-        </div>
-      </form>
 
       <div className="w-full">
         {isLoading ? (

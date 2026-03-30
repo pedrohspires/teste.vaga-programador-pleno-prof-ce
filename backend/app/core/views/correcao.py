@@ -12,12 +12,22 @@ class CorrecaoViewSet(viewsets.ModelViewSet):
     permission_classes = [IsProfessor]
 
     def perform_create(self, serializer):
+        resposta = serializer.validated_data.get('resposta')
+
+        if resposta.atividade.created_by != self.request.user:
+            return Response({"detail": "Você só pode corrigir atividades criadas por você."}, status=status.HTTP_403_FORBIDDEN)
+
         serializer.save(
-            created_by=self.request.user, 
+            created_by=self.request.user,
             updated_by=self.request.user
         )
 
     def perform_update(self, serializer):
+        instance = self.get_object()
+
+        if instance.resposta.atividade.created_by != self.request.user:
+            return Response({"detail": "Você só pode corrigir atividades criadas por você."}, status=status.HTTP_403_FORBIDDEN)
+        
         serializer.save(updated_by=self.request.user)
 
     @action(detail=False, methods=['get'], url_path='buscar/(?P<idResposta>[^/.]+)')

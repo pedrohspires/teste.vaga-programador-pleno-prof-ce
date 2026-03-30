@@ -1,6 +1,6 @@
 import { getRequest } from "../utils/requests";
 import type { atividadeType } from "./atividade";
-import type { correcaoType } from "./correcao";
+import type { correcaoRespostaType, correcaoType } from "./correcao";
 
 const api = "/api/me";
 
@@ -10,7 +10,7 @@ export const getMeAtividadeByUser = async () => {
 }
 
 export const getMeCorrecoes = async () => {
-    const response = await getRequest<Array<correcaoType>>(`${api}/correcoes/`);
+    const response = await getRequest<Array<correcaoRespostaType>>(`${api}/respostas/`);
     return response;
 }
 

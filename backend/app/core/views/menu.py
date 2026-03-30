@@ -36,4 +36,13 @@ class MenuView(APIView):
                 }
             ])
 
+        if user.tipo == Usuario.Tipo.ALUNO:
+            menu.extend([
+                {
+                    "descricao": "Respostas",
+                    "path": "/respostas/aluno",
+                    "icone": "FaFileAlt"
+                }
+            ])
+
         return Response(menu)

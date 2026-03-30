@@ -180,7 +180,6 @@ export default function MainLayout() {
 }
 
 function MenuItem({ menuItem }: { menuItem: menuItemType }) {
-    console.log(location.pathname)
     return (
         <Link
             to={menuItem.path}
