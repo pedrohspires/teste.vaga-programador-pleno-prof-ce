@@ -11,8 +11,6 @@ export type menuItemType = {
   descricao: string,
   path: string,
   icone: string,
-  ativo: boolean,
-  submenus?: menuItemType[]
 }
 
 

@@ -142,7 +142,6 @@ export default function MainLayout() {
                     <MenuItem
                         menuItem={{
                             descricao: "Configurações",
-                            ativo: false,
                             icone: "FaCog",
                             path: "/Configuracoes"
                         }}
@@ -181,12 +180,13 @@ export default function MainLayout() {
 }
 
 function MenuItem({ menuItem }: { menuItem: menuItemType }) {
+    console.log(location.pathname)
     return (
         <Link
             to={menuItem.path}
             className={classNames(
                 'w-full flex items-center gap-2 p-2 px-4 rounded-lg cursor-pointer text-blue-950 mb-1 font-semibold transition-colors',
-                menuItem.ativo ? "bg-blue-100 hover:bg-blue-200" : "bg-transparent hover:bg-blue-50" // Troquei bg-white por bg-transparent para evitar bugs visuais se o fundo mudar
+                (location.pathname.includes(menuItem.path) && menuItem.path !== "/") || (menuItem.path === "/" && location.pathname === "/") ? "bg-blue-100 hover:bg-blue-200" : "bg-transparent hover:bg-blue-50" // Troquei bg-white por bg-transparent para evitar bugs visuais se o fundo mudar
             )}
         >
             <DynamicIcon name={menuItem.icone} />
