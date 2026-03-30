@@ -79,6 +79,12 @@ Utilizei `GenericViewSets` com `Mixins` específicos (como `CreateModelMixin`) e
 
 - **Motivo:** Maior controle de segurança. Por exemplo, impedi o método `PUT` na edição de respostas, permitindo apenas `PATCH` para garantir que o aluno não altere campos indevidos (como o ID do autor).
 
+### Uso de branches
+
+Foi utilizado branches para desenvolver algumas funcionalidades do sistema.
+
+- **Motivo:** Ajuda no controle do versionamento, bem como merges em trabalho em equipes distintas.
+
 ---
 
 ## 🚧 Desafios e Observações
