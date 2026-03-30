@@ -15,6 +15,8 @@ export type atividadeType = {
     data_entrega: string;
     turma: string;
     turma_descricao: string;
+    nota: number | null;
+    id_correcao: number | null;
 } & baseType;
 
 export type atividadeFormType = {

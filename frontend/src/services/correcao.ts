@@ -1,10 +1,11 @@
 import { getRequest, postRequest, putRequest } from "../utils/requests";
 import type { baseType } from "./api";
+import type { respostaType } from "./resposta";
 
 const api = "/api/correcao";
 
 export type correcaoType = {
-    resposta: number;
+    resposta: respostaType;
     nota: number;
     feedback: string;
 } & baseType;
@@ -38,5 +39,10 @@ export const getCorrecaoByResposta = async (idResposta: number) => {
 
 export const getCorrecaoByAtividade = async (idAtividade: number) => {
     const response = await getRequest<correcaoType>(`${api}/atividade/${idAtividade}/`);
+    return response;
+}
+
+export const getCorrecaoById = async (id: number) => {
+    const response = await getRequest<correcaoType>(`${api}/${id}/`);
     return response;
 }

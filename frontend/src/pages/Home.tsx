@@ -7,16 +7,18 @@ import Tabela from "../components/data-display/tabela";
 import { PageHeader } from "../components/ui/pageHeader";
 import { AppContext } from "../context/appContext";
 import { type atividadeType } from "../services/atividade";
-import { getAtividadeByUser } from "../services/home";
+import { getMeAtividadeByUser } from "../services/home";
 import TableDropdown from "../templates/TableDropdown";
 import ModalResposta from "./Resposta/Modal";
+import ModalVisualizarCorrecao from "./Resposta/ModalVisualizarCorrecao";
 
 
 export default function Home() {
   const navigate = useNavigate();
   const { dadosUsuarioLogado } = useContext(AppContext);
   const [atividades, setAtividades] = useState<atividadeType[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [idCorrecaoSelecionada, setIdCorrecaoSelecionada] = useState<number>(0);
+  const [modalVerCorrecaoOpen, setModalVerCorrecaoOpen] = useState(false);
   const [modalRespostaOpen, setModalRespostaOpen] = useState(false);
   const [idAtividadeSelecionada, setIdAtividadeSelecionada] = useState<number>(0);
 
@@ -25,10 +27,9 @@ export default function Home() {
   }, []);
 
   const getAtividades = async () => {
-    setIsLoading(true);
 
     try {
-      const response = await getAtividadeByUser();
+      const response = await getMeAtividadeByUser();
 
       if (response && response.success) {
         setAtividades(response.dados || []);
@@ -38,14 +39,17 @@ export default function Home() {
       }
     } catch (error) {
       toast.error("Erro de comunicação com a API.");
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleClickEditar = (idAtividade: number) => {
     setIdAtividadeSelecionada(idAtividade);
     setModalRespostaOpen(true);
+  }
+
+  const handleClickVerCorrecao = (idCorrecao: number) => {
+    setIdCorrecaoSelecionada(idCorrecao);
+    setModalVerCorrecaoOpen(true);
   }
 
   return (
@@ -64,6 +68,7 @@ export default function Home() {
             <Tabela.Header.Row.Cell>Descrição</Tabela.Header.Row.Cell>
             <Tabela.Header.Row.Cell>Data Entrega</Tabela.Header.Row.Cell>
             <Tabela.Header.Row.Cell>Turma</Tabela.Header.Row.Cell>
+            {dadosUsuarioLogado?.tipo === "ALUNO" && <Tabela.Header.Row.Cell>Nota</Tabela.Header.Row.Cell>}
             <Tabela.Header.Row.Cell className="text-right w-24">Ações</Tabela.Header.Row.Cell>
           </Tabela.Header.Row>
         </Tabela.Header>
@@ -81,14 +86,24 @@ export default function Home() {
                 <Tabela.Body.Row.Cell className='font-medium text-slate-800'>{u.descricao}</Tabela.Body.Row.Cell>
                 <Tabela.Body.Row.Cell className='font-medium text-slate-800'>{format(u.data_entrega, "dd/MM/yyyy")}</Tabela.Body.Row.Cell>
                 <Tabela.Body.Row.Cell className='font-medium text-slate-800'>{u.turma_descricao}</Tabela.Body.Row.Cell>
+                {dadosUsuarioLogado?.tipo === "ALUNO" && <Tabela.Body.Row.Cell className='font-medium text-slate-800'>{!u.id_correcao ? "Não corrigida" : u.nota}</Tabela.Body.Row.Cell>}
                 <Tabela.Body.Row.Cell className="text-right">
                   <TableDropdown>
                     {dadosUsuarioLogado?.tipo === "ALUNO" && (
-                      <TableDropdown.Option handleClick={() => handleClickEditar(u.id)}>
-                        <FaPen className="mr-2" /> Responder/Editar
-                      </TableDropdown.Option>
-                    )}
+                      <>
+                        {!u.id_correcao && (
+                          <TableDropdown.Option handleClick={() => handleClickEditar(u.id)}>
+                            <FaPen className="mr-2" /> Responder/Editar
+                          </TableDropdown.Option>
+                        )}
 
+                        {!!u.id_correcao && (
+                          <TableDropdown.Option handleClick={() => handleClickVerCorrecao(u.id)}>
+                            <FaEye className="mr-2" /> Ver correção
+                          </TableDropdown.Option>
+                        )}
+                      </>
+                    )}
 
                     {dadosUsuarioLogado?.tipo === "PROFESSOR" && (
                       <TableDropdown.Option handleClick={() => navigate("/respostas", { state: { idAtividade: u.id } })}>
@@ -109,6 +124,12 @@ export default function Home() {
         open={modalRespostaOpen}
         setOpen={setModalRespostaOpen}
         updateList={getAtividades}
+      />
+
+      <ModalVisualizarCorrecao
+        id={idCorrecaoSelecionada}
+        open={modalVerCorrecaoOpen}
+        setOpen={setModalVerCorrecaoOpen}
       />
     </div>
   )
